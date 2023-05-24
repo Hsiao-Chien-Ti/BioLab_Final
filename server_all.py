@@ -36,8 +36,9 @@ def update():
         X[i][:-1]=X[i][1:]   # shift data in the temporal mean 1 sample left    
         value = float(float(interf[turn-1].read())*5/255)               # read line (single value) from the serial port
         X[i][-1] = value                 # vector containing the instantaneous values  
-        filtRes=filter(X[i],60,0.5,10.2,410,1000)
-        X_all.append(filtRes)
+        # filtRes=filter(X[i],60,0.5,10.2,410,1000)
+        # X_all.append(filtRes)
+        X_all.append(X[i])
     pred = model.predict(X_all)
     if np.max(pred)>0.6:
         X =[np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth)]
