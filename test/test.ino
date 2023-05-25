@@ -35,7 +35,7 @@ void loop()
     for(int i=0;i<4;i++)
     {
       val = map(analogRead(adc[i]), 0, 1023, 0, 255);
-      Serial.println(val);
+      // delayMicroseconds(200);
       BTSerial.write(val);
     }
   }

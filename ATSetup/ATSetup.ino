@@ -15,7 +15,8 @@ void setup() {
   delay(5000);   
   // BT.println( "AT" );
   // BT.println( "AT+UART=115200,0,0" );
-  BT.println( "AT+UART" );
+  // BT.println( "AT+UART" );
+  BT.println( "AT+NAME=adi" );
 }
 
 void loop() {
