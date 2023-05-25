@@ -85,7 +85,7 @@ class Graph(QWidget):
 def saveData():
     global X
     with open(gestures[gesture]+'_'+datetime.strftime(datetime.now(),'%Y_%m_%d_%H_%M_%S')+'.txt','w') as f:
-        f.write('time   channel1    channel2    channel3    channel4    class\n')
+        f.write('time\tchannel1\tchannel2\tchannel3\tchannel4\tclass\n')
         for i in range(windowWidth):
             f.write(str(i))
             f.write('\t')
