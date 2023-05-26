@@ -1,6 +1,4 @@
-import typing
 from PyQt5.QtCore import QObject
-from scipy.signal import butter,iirnotch, filtfilt
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtGui import *
@@ -10,9 +8,9 @@ import interface
 from PyQt5.QtWidgets import QApplication
 from datetime import datetime
 import sys
-gestures = ['gesture0','gesture1','gesture2','gesture3','gesture4','gesture5']
+gestures = ['gesture0','gesture1','gesture2','gesture3','gesture4','gesture5','gesture6']
 gesture = int(input("Gesture: ")) # use integer for gesture type
-interf = interface.interface("COM17")
+interf = interface.interface("COM42")
 
 windowWidth = 1000                      # width of the window displaying the curve
 X =[np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth)]
@@ -84,7 +82,7 @@ class Graph(QWidget):
         self.plot4.setData(data)
 def saveData():
     global X
-    with open(gestures[gesture]+'_'+datetime.strftime(datetime.now(),'%Y_%m_%d_%H_%M_%S')+'.txt','w') as f:
+    with open('training_data/'+gestures[gesture]+'_'+datetime.strftime(datetime.now(),'%Y_%m_%d_%H_%M_%S')+'.txt','w') as f:
         f.write('time\tchannel1\tchannel2\tchannel3\tchannel4\tclass\n')
         for i in range(windowWidth):
             f.write(str(i))

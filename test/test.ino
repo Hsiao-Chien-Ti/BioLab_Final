@@ -17,6 +17,7 @@ void setup()
 
 void loop()
 {
+  // tone(6, 400);
   if(BTSerial.available())
   {
     if(BTSerial.read()=='s')
