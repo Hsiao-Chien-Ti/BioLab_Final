@@ -26,6 +26,7 @@ class Worker(QThread):
         self.interf.write('s')
         self.X =[np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth)]
         self.running=1
+        self.saving=0
     def run(self):
         self.count=0
         self.timer=-1
@@ -44,7 +45,7 @@ class Worker(QThread):
                 self.do.emit('relax2')
             elif self.timer==3999:
                 self.timer=-1
-            if self.timer==savePeriod:
+            if self.timer==savePeriod and self.saving:
                 self.save()
             # if(self.timer>2999):
             #     self.save(1)
@@ -57,14 +58,15 @@ class Worker(QThread):
             self.data4.emit(self.X[3])
             self.count=0
         self.interf.write('e')
-        time.sleep(1)
+        while self.interf.read()!=1:
+            pass
         self.interf.end_process()
         time.sleep(1)
         self.leave.emit(1)
         # sys.exit(0)
         # self.exit()
     def make_connection(self, data_object):
-        # data_object.save.connect(self.toggle)
+        data_object.saving.connect(self.toggleSaving)
         data_object.end.connect(self.end)
     def save(self):
         with open('training_data/'+gestures[gesture]+'_'+datetime.strftime(datetime.now(),'%Y_%m_%d_%H_%M_%S')+'.txt','w') as f:
@@ -77,9 +79,9 @@ class Worker(QThread):
                     f.write('\t')
                 f.write(str(gesture))
                 f.write('\n')
-    # @pyqtSlot(object)
-    # def toggle(self,tog):
-    #     self.tog=tog
+    @pyqtSlot(object)
+    def toggleSaving(self,tog):
+        self.saving=not self.saving
 
     @pyqtSlot(object)
     def end(self, end):
@@ -88,7 +90,7 @@ class Worker(QThread):
             
     
 class Graph(QWidget):
-    save=pyqtSignal(object)
+    saving=pyqtSignal(object)
     end=pyqtSignal(object)
     def __init__(self):
         super().__init__()
@@ -109,7 +111,9 @@ class Graph(QWidget):
         self.layout.addWidget(self.graph2)
         self.layout.addWidget(self.graph3)
         self.layout.addWidget(self.graph4)
-        
+        self.saveBtn = QPushButton('save')
+        self.saveBtn.clicked.connect(self.toggleSaving)
+        self.layout.addWidget(self.saveBtn)
         # self.saveBtn = QPushButton('save')
         # self.saveBtn.clicked.connect(self.saveData)
         # self.layout.addWidget(self.saveBtn)
@@ -128,8 +132,13 @@ class Graph(QWidget):
         data_object.data4.connect(self.grab_data4)
         data_object.leave.connect(self.terminate)
         data_object.do.connect(self.do)
-    def saveData(self):
-        self.save.emit(1)
+    def toggleSaving(self):
+        # print(self.saveBtn.text())
+        if self.saveBtn.text()=='save':
+            self.saveBtn.setText('stop save')
+        else:
+            self.saveBtn.setText('save')
+        self.saving.emit(1)
     def endProgram(self):
         self.end.emit(1)
     @pyqtSlot(object)

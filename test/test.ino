@@ -20,14 +20,18 @@ void loop()
   // tone(6, 400);
   if(BTSerial.available())
   {
-    if(BTSerial.read()=='s')
+    char c=BTSerial.read();
+    // Serial.println(c);
+    if(c=='s')
     {
       start=true;
       cTime=micros();
     }
-    if(BTSerial.read()=='e')
+    if(c=='e')
     {
+      // Serial.println("e");
       start=false;
+      BTSerial.write(1);
     }
   }
   if (start&&cTime - micros() >= 1000)

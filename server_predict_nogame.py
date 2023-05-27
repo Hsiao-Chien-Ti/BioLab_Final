@@ -35,7 +35,9 @@ class Main():
                 self.count=0
         finally:
             self.interf.write('e')
+            while self.interf.read()!=1:
+                pass
             self.interf.end_process()
-            print('fin')
+            time.sleep(1)
 main=Main()
 main.run()
