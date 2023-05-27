@@ -24,15 +24,20 @@ class Worker(QThread):
         self.X =[np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth)]
         self.running=1
     def run(self):
+        self.count=0
         while(self.running):
             for i in range(4):
                 self.X[i][:-1]=self.X[i][1:]   # shift data in the temporal mean 1 sample left    
                 value = float(float(self.interf.read())*5/255)               # read line (singl value) from the serial port
                 self.X[i][-1] = value
+            self.count+=1
+            if(self.count<3):
+                continue
             self.data1.emit(self.X[0])
             self.data2.emit(self.X[1])
             self.data3.emit(self.X[2])
             self.data4.emit(self.X[3])
+            self.count=0
         self.interf.write('e')
         self.interf.end_process()
         self.leave.emit(1)
