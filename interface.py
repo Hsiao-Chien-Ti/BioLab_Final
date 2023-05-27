@@ -1,4 +1,5 @@
 import BT
+import sys
 
 # hint: You may design additional functions to execute the input command, which will be helpful when debugging :)
 
@@ -17,6 +18,7 @@ class interface:
 
     def end_process(self):
         self.ser.disconnect()
+        # sys.exit(0)
 
     def write(self, input):
         # print("write")

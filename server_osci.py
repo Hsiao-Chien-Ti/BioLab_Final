@@ -11,7 +11,7 @@ import sys
 from keras import models
 import UdpComms as U
 import time
-model = models.load_model('model_2023_05_27_10_44_09.h5')
+model = models.load_model('model_2023_05_27_13_51_30.h5')
 sock = U.UdpComms(udpIP="127.0.0.1", portTX=8000, portRX=8001,
                 enableRX=True, suppressWarnings=True)
 start = 0
@@ -19,7 +19,7 @@ turn=1
 # interf = [interface.interface("COM17")]
 skillSequence=[[0,1,2,3],[1,3,0,2],[1,2,0,1]]
 skills=['attack1','attack2','attack3']
-windowWidth = 1000 
+windowWidth = 2000 
 skillLength = 4
 class Worker(QThread):    
     data1 = pyqtSignal(object)
@@ -37,32 +37,23 @@ class Worker(QThread):
     def run(self):
         self.count=0
         while(self.running):
-            self.X_all=[]
-            flag=1
             for i in range(4):
                 self.X[i][:-1]=self.X[i][1:]   # shift data in the temporal mean 1 sample left    
                 value = float(float(self.interf[turn-1].read())*5/255)               # read line (single value) from the serial port
                 self.X[i][-1] = value                 # vector containing the instantaneous values  
-                self.X_all.append(self.X[i])
-                if self.X[i][500]==0:
-                    flag=0
             self.count+=1
-            self.X_data = np.array(self.X_all).reshape(-1, 1000, 4, 1)
-            # print(self.X_data.shape)
-            if(flag):
-                # print(self.X_data)
-                pred = model.predict(self.X_data,verbose = 0)
-                # print(pred)
-                if np.max(pred)>0.7:
-                    print(np.argmax(pred))
-                    # self.X =[np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth)]
-                    # self.X_all=[]
-                    # if np.argmax(pred)!=6:
-                    #     self.gestureResult.append(np.argmax(pred))
-                    #     if len(self.gestureResult)==skillLength:
-                    #         self.autoCalibration()
             if(self.count<5):
                 continue
+            self.X_data = np.array(self.X).reshape(-1, 2000, 4, 1)
+            pred = model.predict(self.X_data,verbose = 0)
+            if np.max(pred)>0.7:
+                print(np.argmax(pred))
+                self.X =[np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth)]
+                # self.X_all=[]
+                # if np.argmax(pred)!=6:
+                #     self.gestureResult.append(np.argmax(pred))
+                #     if len(self.gestureResult)==skillLength:
+                #         self.autoCalibration()
             self.data1.emit(self.X[0])
             self.data2.emit(self.X[1])
             self.data3.emit(self.X[2])
@@ -70,8 +61,8 @@ class Worker(QThread):
             self.count=0
         
         self.interf[turn-1].write('e')
+        time.sleep(1)
         self.interf[turn-1].end_process()
-        print('worker leave')
         time.sleep(1)
         self.leave.emit(1)
         # sys.exit(0)
@@ -133,7 +124,6 @@ class Graph(QWidget):
         data_object.data4.connect(self.grab_data4)
         data_object.leave.connect(self.terminate)
     def endProgram(self):
-        print('click end')
         self.end.emit(1)
     @pyqtSlot(object)
     def grab_data1(self, data):

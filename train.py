@@ -11,12 +11,12 @@ from datetime import datetime
 from scipy.signal import butter, filtfilt
 def filter(data):
     b, a = butter(4, 100,fs=1000, btype='low')
-    y = filtfilt(b, a, y)
+    y = filtfilt(b, a, data)
     return y
 path = "training_data"
 files=os.listdir(path)
 Y_data = np.array([]) 
-X_data = np.zeros((0,1000,4))
+X_data = np.zeros((0,2000,4))
 for f in files:
 
     path_txt = os.path.join(path, f)
@@ -30,7 +30,7 @@ for f in files:
     df=df.drop(columns=['class'])
     for k in df.keys():
         df[k]=filter(df[k])    
-    df=df.to_numpy().reshape(1,1000,4)
+    df=df.to_numpy().reshape(1,2000,4)
 
     # df=df*1000
     # print(df.shape)
@@ -38,16 +38,16 @@ for f in files:
 # plt.ylim([1.5,3])
 # plt.plot(X_data[0])
 # plt.show()
-X_data = X_data.reshape(-1, 1000, 4, 1)
+X_data = X_data.reshape(-1, 2000, 4, 1)
 Y_data = Y_data.astype(int)
 print(Y_data.shape)
 print(X_data.shape)
 X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=0.2, random_state=10)
-Y_train_onehot = np_utils.to_categorical(Y_train,num_classes=7)
-Y_test_onehot = np_utils.to_categorical(Y_test,num_classes=7)
+Y_train_onehot = np_utils.to_categorical(Y_train,num_classes=6)
+Y_test_onehot = np_utils.to_categorical(Y_test,num_classes=6)
 CNN = Sequential(name='CNN')
 #第一層卷積
-CNN.add(Conv2D(16, (40,1), strides = (10,1), activation='relu', input_shape=(1000,4,1)))
+CNN.add(Conv2D(16, (40,1), strides = (10,1), activation='relu', input_shape=(2000,4,1)))
 #第一層池化
 CNN.add(MaxPooling2D((10,1)))
 #第二層卷積
@@ -61,7 +61,7 @@ CNN.add(Dense(100,activation='relu'))
 #隨機捨棄神經元，避免overfitting
 CNN.add(Dropout(0.3,seed=10))
 #輸出層 分類用softmax
-CNN.add(Dense(7,activation='softmax'))
+CNN.add(Dense(6,activation='softmax'))
 CNN.summary()
 # model.complie
 CNN.compile(optimizer='Adam',

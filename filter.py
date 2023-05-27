@@ -8,6 +8,7 @@ import interface
 from PyQt5.QtWidgets import QApplication
 from datetime import datetime
 import sys
+import time
 gestures = ['gesture0','gesture1','gesture2','gesture3','gesture4','gesture5','gesture6']
 gesture = int(input("Gesture: ")) # use integer for gesture type
 windowWidth = 2000                      # width of the window displaying the curve
@@ -56,7 +57,9 @@ class Worker(QThread):
             self.data4.emit(self.X[3])
             self.count=0
         self.interf.write('e')
+        time.sleep(1)
         self.interf.end_process()
+        time.sleep(1)
         self.leave.emit(1)
         # sys.exit(0)
         # self.exit()

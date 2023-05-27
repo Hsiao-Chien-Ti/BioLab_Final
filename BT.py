@@ -26,6 +26,7 @@ class bluetooth:
 
     def disconnect(self):
         self.ser.close()
+        sleep(1)
 
     def SerialWrite(self,output):
         # send = 's'.encode("utf-8")
