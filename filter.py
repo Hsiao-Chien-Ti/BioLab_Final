@@ -10,13 +10,15 @@ from datetime import datetime
 import sys
 gestures = ['gesture0','gesture1','gesture2','gesture3','gesture4','gesture5','gesture6']
 gesture = int(input("Gesture: ")) # use integer for gesture type
-windowWidth = 1000                      # width of the window displaying the curve
+windowWidth = 2000                      # width of the window displaying the curve
+savePeriod = 3000
 class Worker(QThread):    
     data1 = pyqtSignal(object)
     data2 = pyqtSignal(object)
     data3 = pyqtSignal(object)
     data4 = pyqtSignal(object)
     leave = pyqtSignal(object)
+    do =pyqtSignal(object)
     def __init__(self):
         super().__init__()
         self.interf = interface.interface("COM17")
@@ -25,12 +27,27 @@ class Worker(QThread):
         self.running=1
     def run(self):
         self.count=0
+        self.timer=-1
         while(self.running):
             for i in range(4):
                 self.X[i][:-1]=self.X[i][1:]   # shift data in the temporal mean 1 sample left    
                 value = float(float(self.interf.read())*5/255)               # read line (singl value) from the serial port
                 self.X[i][-1] = value
             self.count+=1
+            self.timer+=1
+            if self.timer==0:
+                self.do.emit('relax1')
+            elif self.timer==1000:
+                self.do.emit('start')
+            elif self.timer==3000:
+                self.do.emit('relax2')
+            elif self.timer==3999:
+                self.timer=-1
+            if self.timer==savePeriod:
+                self.save()
+            # if(self.timer>2999):
+            #     self.save(1)
+            #     self.timer=0
             if(self.count<3):
                 continue
             self.data1.emit(self.X[0])
@@ -44,21 +61,23 @@ class Worker(QThread):
         # sys.exit(0)
         # self.exit()
     def make_connection(self, data_object):
-        data_object.save.connect(self.save)
+        # data_object.save.connect(self.toggle)
         data_object.end.connect(self.end)
-    @pyqtSlot(object)
-    def save(self, save):
-        if save == 1:
-            with open('training_data/'+gestures[gesture]+'_'+datetime.strftime(datetime.now(),'%Y_%m_%d_%H_%M_%S')+'.txt','w') as f:
-                f.write('time\tchannel1\tchannel2\tchannel3\tchannel4\tclass\n')
-                for i in range(windowWidth):
-                    f.write(str(i))
+    def save(self):
+        with open('training_data/'+gestures[gesture]+'_'+datetime.strftime(datetime.now(),'%Y_%m_%d_%H_%M_%S')+'.txt','w') as f:
+            f.write('time\tchannel1\tchannel2\tchannel3\tchannel4\tclass\n')
+            for i in range(windowWidth):
+                f.write(str(i))
+                f.write('\t')
+                for j in range(4):
+                    f.write(str(round(self.X[j][i], 3)))
                     f.write('\t')
-                    for j in range(4):
-                        f.write(str(round(self.X[j][i], 3)))
-                        f.write('\t')
-                    f.write(str(gesture))
-                    f.write('\n')
+                f.write(str(gesture))
+                f.write('\n')
+    # @pyqtSlot(object)
+    # def toggle(self,tog):
+    #     self.tog=tog
+
     @pyqtSlot(object)
     def end(self, end):
         if end == 1:
@@ -87,9 +106,13 @@ class Graph(QWidget):
         self.layout.addWidget(self.graph2)
         self.layout.addWidget(self.graph3)
         self.layout.addWidget(self.graph4)
-        self.saveBtn = QPushButton('save')
-        self.saveBtn.clicked.connect(self.saveData)
-        self.layout.addWidget(self.saveBtn)
+        
+        # self.saveBtn = QPushButton('save')
+        # self.saveBtn.clicked.connect(self.saveData)
+        # self.layout.addWidget(self.saveBtn)
+        self.instruction = QLabel('0')
+        self.instruction.setFont(QFont('Arial', 20))
+        self.layout.addWidget(self.instruction)
         endBtn = QPushButton('end')
         endBtn.clicked.connect(self.endProgram)
         self.layout.addWidget(endBtn)
@@ -101,6 +124,7 @@ class Graph(QWidget):
         data_object.data3.connect(self.grab_data3)
         data_object.data4.connect(self.grab_data4)
         data_object.leave.connect(self.terminate)
+        data_object.do.connect(self.do)
     def saveData(self):
         self.save.emit(1)
     def endProgram(self):
@@ -121,6 +145,10 @@ class Graph(QWidget):
     def terminate(self, data):
         if data==1:
             sys.exit(0)
+    @pyqtSlot(object)
+    def do(self, data):
+        self.instruction.setText(data)
+    
 app = QApplication(sys.argv)
 widget = Graph()
 worker = Worker()

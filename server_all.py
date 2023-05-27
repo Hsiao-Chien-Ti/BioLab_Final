@@ -108,7 +108,7 @@ def update():
     # print(X_data.shape)
     if(flag):
         pred = model.predict(X_data,verbose = 0)
-        # print(pred)
+        print(pred)
         if np.max(pred)>0.7:
             print(np.argmax(pred))
             X =[np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth)]
@@ -139,6 +139,7 @@ print('python server running')
 # worker = Worker()
 # widget.make_connection(worker)
 # worker.start()
+
 while True:
     data = sock.ReadReceivedData()  # read data
     if data == 'start':
