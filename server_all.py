@@ -13,7 +13,7 @@ model = models.load_model('model_2023_05_26_16_07_54.h5')
 sock = U.UdpComms(udpIP="127.0.0.1", portTX=8000, portRX=8001,
                 enableRX=True, suppressWarnings=True)
 start = 0
-interf = [interface.interface("COM42")]
+interf = [interface.interface("COM17")]
 windowWidth = 1000
 skillLength = 4
 gestureResult=[]
