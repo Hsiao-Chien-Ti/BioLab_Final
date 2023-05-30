@@ -50,7 +50,7 @@ class Worker(QThread):
             # if(self.timer>2999):
             #     self.save(1)
             #     self.timer=0
-            if(self.count<3):
+            if(self.count<10):
                 continue
             self.data1.emit(self.X[0])
             self.data2.emit(self.X[1])
