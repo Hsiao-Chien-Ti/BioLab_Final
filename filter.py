@@ -9,10 +9,10 @@ from PyQt5.QtWidgets import QApplication
 from datetime import datetime
 import sys
 import time
-gestures = ['gesture0','gesture1','gesture2','gesture3','gesture4','gesture5','gesture6']
+gestures = ['gesture0','gesture1','gesture2','gesture3','gesture4','gesture5','gesture6','gesture7']
 gesture = int(input("Gesture: ")) # use integer for gesture type
-windowWidth = 2000                      # width of the window displaying the curve
-savePeriod = 3000
+windowWidth = 1500 #2000                      # width of the window displaying the curve
+savePeriod = 2750 #3000
 class Worker(QThread):    
     data1 = pyqtSignal(object)
     data2 = pyqtSignal(object)
@@ -22,7 +22,7 @@ class Worker(QThread):
     do =pyqtSignal(object)
     def __init__(self):
         super().__init__()
-        self.interf = interface.interface("COM17")
+        self.interf = interface.interface("COM42")
         self.interf.write('s')
         self.X =[np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth),np.linspace(0,0,windowWidth)]
         self.running=1
@@ -41,12 +41,13 @@ class Worker(QThread):
                 self.do.emit('relax1')
             elif self.timer==1000:
                 self.do.emit('start')
-            elif self.timer==3000:
+            elif self.timer==2500: 
                 self.do.emit('relax2')
-            elif self.timer==3999:
+            elif self.timer==3499: 
                 self.timer=-1
-            if self.timer==savePeriod and self.saving:
+            if self.saving:
                 self.save()
+                self.saving=0
             # if(self.timer>2999):
             #     self.save(1)
             #     self.timer=0
@@ -69,7 +70,7 @@ class Worker(QThread):
         data_object.saving.connect(self.toggleSaving)
         data_object.end.connect(self.end)
     def save(self):
-        with open('training_data/'+gestures[gesture]+'_'+datetime.strftime(datetime.now(),'%Y_%m_%d_%H_%M_%S')+'.txt','w') as f:
+        with open('training_data/new/'+gestures[gesture]+'_'+datetime.strftime(datetime.now(),'%Y_%m_%d_%H_%M_%S')+'.txt','w') as f:
             f.write('time\tchannel1\tchannel2\tchannel3\tchannel4\tclass\n')
             for i in range(windowWidth):
                 f.write(str(i))
@@ -111,15 +112,17 @@ class Graph(QWidget):
         self.layout.addWidget(self.graph2)
         self.layout.addWidget(self.graph3)
         self.layout.addWidget(self.graph4)
+        
         self.saveBtn = QPushButton('save')
         self.saveBtn.clicked.connect(self.toggleSaving)
         self.layout.addWidget(self.saveBtn)
         # self.saveBtn = QPushButton('save')
         # self.saveBtn.clicked.connect(self.saveData)
         # self.layout.addWidget(self.saveBtn)
+        
         self.instruction = QLabel('0')
         self.instruction.setFont(QFont('Arial', 20))
-        self.layout.addWidget(self.instruction)
+        # self.layout.addWidget(self.instruction)
         endBtn = QPushButton('end')
         endBtn.clicked.connect(self.endProgram)
         self.layout.addWidget(endBtn)
@@ -134,10 +137,7 @@ class Graph(QWidget):
         data_object.do.connect(self.do)
     def toggleSaving(self):
         # print(self.saveBtn.text())
-        if self.saveBtn.text()=='save':
-            self.saveBtn.setText('stop save')
-        else:
-            self.saveBtn.setText('save')
+        pass
         self.saving.emit(1)
     def endProgram(self):
         self.end.emit(1)

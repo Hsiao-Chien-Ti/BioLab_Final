@@ -9,7 +9,7 @@ def filter(data):
     y=abs(y)
     # return y
     return data
-path = "training_data/yon-lee/"
+path = "training_data/new/rest/"
 prev_class=-1
 files=os.listdir(path)
 for f in files:
@@ -29,5 +29,5 @@ for f in files:
     plt.legend(loc='lower right')
     plt.ylabel('V(V)')
     plt.xlabel('time(ms)')
-    plt.savefig('training_data/plot/yon-lee/{}.png'.format(f))
+    plt.savefig('training_data/plot/new/rest/{}.png'.format(f))
     plt.figure()

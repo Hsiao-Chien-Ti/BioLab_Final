@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from keras.utils import np_utils
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Dropout
 from keras.callbacks import ModelCheckpoint
 from classification_models_1D.tfkeras import Classifiers
 import matplotlib.pyplot as plt
@@ -47,6 +47,7 @@ model.add(ResNet18(
    weights=None
 ))
 model.add(Dense(100, activation='relu'))
+model.add(Dropout(0.5))
 model.add(Dense(6,activation='softmax'))
 model.summary()
 # model.complie

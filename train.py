@@ -14,7 +14,7 @@ def filter(data):
     y = filtfilt(b, a, data)
     # return y
     return data
-path = "training_data/doing/pm"
+path = "training_data/new/yon-lee"
 files=os.listdir(path)
 Y_data = np.array([]) 
 X_data = np.zeros((0,1500,4))
@@ -28,7 +28,7 @@ for f in files:
     df=df.drop(columns=['class'])
     for k in df.keys():
         df[k]=filter(df[k])
-    df=df.to_numpy()[250:1750].reshape(1,1500,4)
+    df=df.to_numpy().reshape(1,1500,4)
     X_data = np.concatenate((X_data,df) )
 X_data = X_data.reshape(-1, 1500, 4, 1)
 Y_data = Y_data.astype(int)
@@ -59,7 +59,7 @@ CNN.summary()
 CNN.compile(optimizer='Adam',
       loss='categorical_crossentropy',
       metrics=['accuracy'])
-mcp_save = ModelCheckpoint('model_pm_{}.h5'.format(datetime.strftime(datetime.now(),'%Y_%m_%d_%H_%M_%S')), save_best_only=True, monitor='val_loss', mode='min')
+mcp_save = ModelCheckpoint('model_{}.h5'.format(datetime.strftime(datetime.now(),'%Y_%m_%d_%H_%M_%S')), save_best_only=True, monitor='val_loss', mode='min')
 train_history=CNN.fit(x=X_train, 
                       y=Y_train_onehot,
                       validation_split=0.2, 

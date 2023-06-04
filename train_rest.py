@@ -8,13 +8,14 @@ from keras.callbacks import ModelCheckpoint
 from keras.layers import Dense,Dropout,Flatten,Conv2D,MaxPooling2D
 import matplotlib.pyplot as plt
 from datetime import datetime
-path_6 = "training_data/rest"
+import random
+path_6 = "training_data/new/rest"
 file6=os.listdir(path_6)
 path_txt = os.path.join(path_6, file6[0])
 X_data = pd.read_csv(path_txt, delimiter = "\t")
 X_data=X_data.drop(columns=['time'])
 X_data=X_data.drop(columns=['class'])
-X_data=X_data.to_numpy().reshape(2000,4)
+X_data=X_data.to_numpy().reshape(1500,4)
 
 for f in file6:
     if f == file6[0]:
@@ -23,19 +24,20 @@ for f in file6:
     df = pd.read_csv(path_txt, delimiter = "\t")
     df=df.drop(columns=['time'])
     df=df.drop(columns=['class']) 
-    df=df.to_numpy().reshape(2000,4)
+    df=df.to_numpy().reshape(1500,4)
     X_data = np.concatenate((X_data,df) )
-path_7 = "training_data/yon-lee"
+path_7 = "training_data/new/yon-lee"
 file7=os.listdir(path_7)
-for f in file7:
-    path_txt = os.path.join(path_7, f)
+random.shuffle(file7)
+for f in range(len(file6)):
+    path_txt = os.path.join(path_7, file7[f])
     df = pd.read_csv(path_txt, delimiter = "\t")
     df=df.drop(columns=['time'])
     df=df.drop(columns=['class'])
-    df=df.to_numpy().reshape(2000,4)
+    df=df.to_numpy().reshape(1500,4)
     X_data = np.concatenate((X_data,df))
 X_data = np.array(np.array_split(X_data, np.arange(100, len(X_data), 100)))
-Y_data = np.concatenate((np.zeros(len(file6)*20),np.ones(len(file7)*20)))
+Y_data = np.concatenate((np.zeros(len(file6)*15),np.ones(len(file6)*15)))
 X_data = X_data.reshape(-1, 100, 4, 1)
 Y_data = Y_data.astype(int)
 print(Y_data.shape)

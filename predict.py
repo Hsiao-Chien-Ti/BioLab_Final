@@ -14,7 +14,7 @@ def filter(data):
     y = filtfilt(b, a, data)
     return data
 # np.set_printoptions(threshold=sys.maxsize)
-model = models.load_model('model_resnet18_2023_05_30_16_09_59.h5')
+model = models.load_model('model_2023_05_29_17_52_08.h5')
 rest_model = models.load_model('exist_model_2023_05_30_17_00_19.h5')
 windowWidth = 1500
 subWindowWidth = 100
